@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+  </head>
+  <body>
+    <input class="debouncer" placeholder="debouncer" type="text" />
+    <input class="throttler" placeholder="throttler" type="text" />
+  </body>
+  <script>
+    function searchForResults(searchTerm) {
+      fetch("https://hn.algolia.com/api/v1/search?query=" + searchTerm)
+        .then((r) => r.json())
+        .then((r) => console.log(r.hits));
+    }
+
+    let debounceTimer;
+    function debouncer(event, whichFunctionToRun, howLongToWait) {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      const userInput = event.target.value;
+      debounceTimer = setTimeout(
+        () => whichFunctionToRun(userInput),
+        howLongToWait * 1000
+      );
+    }
+
+    document
+      .querySelector(".debouncer")
+      .addEventListener("keyup", (e) => debouncer(e, searchForResults, 2));
+
+    let previousValue = document.querySelector(".throttler").value;
+    let currentValue = document.querySelector(".throttler").value;
+    // throttler
+    setInterval(() => {
+      currentValue = document.querySelector(".throttler").value;
+      if (currentValue === previousValue) return;
+      searchForResults(currentValue);
+      previousValue = currentValue;
+    }, 2000);
+  </script>
+</html>
